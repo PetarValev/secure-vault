@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ APP_NAME }} - Secure Password Manager{% endblock %}
+
+{% block content %}
+
+<section class="bg-primary text-white py-5" id="hero">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold">Secure Your Digital Life</h1>
+                <p class="lead mb-4">
+                    Store, generate, and manage your passwords securely with {{ APP_NAME }}.
+                    Never forget a password again while keeping your accounts safe.
+                </p>
+                <div class="d-grid gap-2 d-md-flex">
+                    <a href="{% url 'register' %}" class="btn btn-light btn-lg px-4 me-md-2">
+                        <i class="bi bi-person-plus me-2"></i>Get Started Free
+                    </a>
+                    <button onclick="scrollToSection('features')" class="btn btn-outline-light btn-lg px-4">
+                        <i class="bi bi-arrow-down me-2"></i>Explore Features
+                    </button>
+                </div>
+            </div>
+            <div class="col-lg-6 text-center">
+                <div class="p-4">
+                    <div style="width: 200px; height: 200px; margin: 0 auto; background: linear-gradient(135deg, #0d6efd 0%, #4dabf7 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 30px rgba(13, 110, 253, 0.3);">
+                        <i class="bi bi-shield-lock text-white" style="font-size: 5rem;"></i>
+                    </div>
+                    <div class="mt-4">
+                        <h5 class="text-white-75 mb-1">Secure & Trusted</h5>
+                        <small class="text-white-50">Enterprise-grade protection</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-md-4">
+                <div class="p-3">
+                    <h3 class="text-primary fw-bold">{{ total_users }}+</h3>
+                    <p class="text-muted mb-0">Active Users</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-3">
+                    <h3 class="text-primary fw-bold">100%</h3>
+                    <p class="text-muted mb-0">Encrypted Storage</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-3">
+                    <h3 class="text-primary fw-bold">24/7</h3>
+                    <p class="text-muted mb-0">Security Monitoring</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5 min-vh-100 d-flex align-items-center" id="features">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="display-5 fw-bold">Why Choose {{ APP_NAME }}?</h2>
+                <p class="text-muted">Simple, secure, and reliable password management for everyone</p>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            {% for feature in features %}
+                <div class="col-md-4">
+                    <div class="card h-100 shadow-sm border-0">
+                        <div class="card-body text-center p-4">
+                            <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                                <i class="bi bi-{{ feature.icon }} text-primary fs-4"></i>
+                            </div>
+                            <h5 class="card-title">{{ feature.title }}</h5>
+                            <p class="card-text text-muted">{{ feature.description }}</p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="row mt-5">
+            <div class="col-lg-8 mx-auto text-center">
+                <button onclick="scrollToSection('mission')" class="btn btn-primary btn-lg px-5">
+                    <i class="bi bi-heart me-2"></i>Learn About Our Mission
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="bg-light py-5 min-vh-100 d-flex align-items-center mb-0" id="mission">
+    <div class="container">
+        <div class="row mb-5">
+            <div class="col-lg-8 mx-auto text-center">
+                <h2 class="display-5 fw-bold">Our Mission</h2>
+                <p class="lead text-muted">
+                    Making digital security accessible to everyone
+                </p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-10 mx-auto">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-5">
+                        <div class="row align-items-center">
+                            <div class="col-md-4 text-center mb-4 mb-md-0">
+                                <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 120px; height: 120px;">
+                                    <i class="bi bi-shield-heart text-primary" style="font-size: 3rem;"></i>
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <h3 class="fw-bold mb-3">Protecting Your Digital Identity</h3>
+                                <p class="text-muted mb-4">
+                                    We believe that everyone deserves to feel secure online. {{ APP_NAME }} was created
+                                    to provide a simple, reliable, and secure way to manage your passwords without
+                                    compromising on usability or security.
+                                </p>
+                                <p class="text-muted mb-0">
+                                    Our goal is to make digital security accessible to everyone, regardless of their
+                                    technical expertise. We're committed to transparency, privacy, and putting our
+                                    users' security first.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-5">
+            <div class="col-lg-8 mx-auto text-center">
+                <button onclick="scrollToSection('hero')" class="btn btn-outline-primary btn-lg px-5">
+                    <i class="bi bi-arrow-up me-2"></i>Back to Top
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% block extra_js %}
+<script>
+function scrollToSection(sectionId) {
+    if (sectionId === 'hero') {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    } else {
+        const element = document.getElementById(sectionId);
+        if (element) {
+            element.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const links = document.querySelectorAll('a[href^="#"]');
+    links.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href').substring(1);
+            scrollToSection(targetId);
+        });
+    });
+});
+</script>
+{% endblock %}
+
+{% endblock %}
+

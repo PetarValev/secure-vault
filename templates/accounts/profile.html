@@ -1,0 +1,213 @@
+{% extends 'base.html' %}
+
+{% block title %}Profile - {{ APP_NAME }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+
+        <div class="col-12 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="row align-items-center">
+                        <div class="col-auto">
+                            <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                                <i class="bi bi-person text-primary" style="font-size: 2.5rem;"></i>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <h2 class="mb-1">{{ user.get_full_name|default:user.username }}</h2>
+                            <p class="text-muted mb-2">{{ user.email }}</p>
+                            <div class="d-flex align-items-center gap-3">
+                                <span class="badge bg-{% if user_profile.security_score >= 80 %}success{% elif user_profile.security_score >= 60 %}warning{% else %}danger{% endif %} fs-6">
+                                    <i class="bi bi-shield-check me-1"></i>
+                                    Security Score: {{ user_profile.security_score|default:0 }}%
+                                </span>
+                                <small class="text-muted">
+                                    <i class="bi bi-calendar3 me-1"></i>
+                                    Member since {{ user.date_joined|date:"M Y" }}
+                                </small>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <a href="{% url 'profile_edit' %}" class="btn btn-outline-primary">
+                                <i class="bi bi-pencil me-1"></i>Edit Profile
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center p-4">
+                    <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                        <i class="bi bi-key text-primary fs-4"></i>
+                    </div>
+                    <h4 class="fw-bold text-primary">{{ user.passwords.count }}</h4>
+                    <p class="text-muted mb-0">Stored Passwords</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center p-4">
+                    <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                        <i class="bi bi-exclamation-triangle text-warning fs-4"></i>
+                    </div>
+                    <h4 class="fw-bold text-warning">{{ weak_passwords_count }}</h4>
+                    <p class="text-muted mb-0">Weak Passwords</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center p-4">
+                    <div class="bg-info bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                        <i class="bi bi-clock-history text-info fs-4"></i>
+                    </div>
+                    <h4 class="fw-bold text-info">
+                        {% if user_profile.last_audit_date %}
+                            {{ user_profile.last_audit_date|timesince }}
+                        {% else %}
+                            Never
+                        {% endif %}
+                    </h4>
+                    <p class="text-muted mb-0">Last Security Audit</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-0 pb-0">
+                    <h5 class="fw-bold mb-0">
+                        <i class="bi bi-person-gear me-2"></i>Account Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-sm-6">
+                            <label class="form-label text-muted small">Username</label>
+                            <p class="mb-0 fw-medium">{{ user.username }}</p>
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="form-label text-muted small">Email</label>
+                            <p class="mb-0">{{ user.email }}</p>
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="form-label text-muted small">First Name</label>
+                            <p class="mb-0">{{ user.first_name|default:"Not set" }}</p>
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="form-label text-muted small">Last Name</label>
+                            <p class="mb-0">{{ user.last_name|default:"Not set" }}</p>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label text-muted small">Account Created</label>
+                            <p class="mb-0">{{ user.date_joined|date:"F d, Y \a\t g:i A" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-0 pb-0">
+                    <h5 class="fw-bold mb-0">
+                        <i class="bi bi-shield-check me-2"></i>Security Overview
+                    </h5>
+                </div>
+                <div class="card-body">
+
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="text-muted">Overall Security Score</span>
+                            <span class="fw-bold">{{ user_profile.security_score|default:0 }}%</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-{% if user_profile.security_score >= 80 %}success{% elif user_profile.security_score >= 60 %}warning{% else %}danger{% endif %}"
+                                 role="progressbar"
+                                 style="width: {{ user_profile.security_score|default:0 }}%">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-2">
+                        <div class="col-12">
+                            <div class="d-flex align-items-center justify-content-between p-2 bg-light rounded">
+                                <span class="small">
+                                    <i class="bi bi-shield-lock me-2"></i>Password Encryption
+                                </span>
+                                <span class="badge bg-success">Enabled</span>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="d-flex align-items-center justify-content-between p-2 bg-light rounded">
+                                <span class="small">
+                                    <i class="bi bi-clock-history me-2"></i>Activity Logging
+                                </span>
+                                <span class="badge bg-success">Active</span>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="d-flex align-items-center justify-content-between p-2 bg-light rounded">
+                                <span class="small">
+                                    <i class="bi bi-eye-slash me-2"></i>Two-Factor Auth
+                                </span>
+                                <span class="badge bg-secondary">Coming Soon</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0 pb-0">
+                    <h5 class="fw-bold mb-0">
+                        <i class="bi bi-lightning me-2"></i>Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <a href="{% url 'vault' %}" class="btn btn-outline-primary w-100">
+                                <i class="bi bi-key me-2"></i>
+                                <div class="fw-medium">View Vault</div>
+                                <small class="text-muted">Manage passwords</small>
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{% url 'add_password' %}" class="btn btn-outline-success w-100">
+                                <i class="bi bi-plus-lg me-2"></i>
+                                <div class="fw-medium">Add Password</div>
+                                <small class="text-muted">Store new password</small>
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{% url 'security_audit' %}" class="btn btn-outline-warning w-100">
+                                <i class="bi bi-shield-exclamation me-2"></i>
+                                <div class="fw-medium">Security Audit</div>
+                                <small class="text-muted">Check vulnerabilities</small>
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{% url 'profile_edit' %}" class="btn btn-outline-info w-100">
+                                <i class="bi bi-gear me-2"></i>
+                                <div class="fw-medium">Settings</div>
+                                <small class="text-muted">Account preferences</small>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

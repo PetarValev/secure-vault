@@ -13,3 +13,6 @@ class UserProfile(models.Model):
     def __str__(self):
         return f"{self.user.username}'s Profile"
 
+    @property
+    def weak_passwords_count(self):
+        return self.user.passwords.filter(is_weak=True).count()

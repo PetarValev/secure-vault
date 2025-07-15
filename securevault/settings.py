@@ -33,6 +33,7 @@ PROJECT_APPS = [
     'accounts',
     'dashboard',
     'vault',
+    'core'
 ]
 
 INSTALLED_APPS = [
@@ -66,6 +67,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'core.context_processors.app_context',
+                'core.context_processors.user_context',
             ],
         },
     },

@@ -1,0 +1,17 @@
+    <footer class="bg-light py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-0">&copy; 2025 {{ APP_NAME }}. Made with Django.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <small class="text-muted">
+                        {% if DEBUG %}
+                            <span class="badge bg-warning">DEBUG MODE</span>
+                        {% endif %}
+                        Version {{ APP_VERSION }}
+                    </small>
+                </div>
+            </div>
+        </div>
+    </footer>

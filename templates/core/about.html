@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block title %}About - {{ APP_NAME }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+
+    <div class="row mb-5">
+        <div class="col-lg-8 mx-auto text-center">
+            <h1 class="display-4 fw-bold">About {{ APP_NAME }}</h1>
+            <p class="lead text-muted">
+                Simple, secure password management for everyone
+            </p>
+        </div>
+    </div>
+
+    <div class="row mb-5">
+        <div class="col-lg-8 mx-auto">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-5 text-center">
+                    <h4 class="fw-bold mb-3">Why We Built {{ APP_NAME }}</h4>
+                    <p class="text-muted mb-4">
+                        We were tired of forgetting passwords, using the same password everywhere,
+                        and feeling overwhelmed by complicated password managers. So we built something
+                        simple, secure, and actually enjoyable to use.
+                    </p>
+                    <p class="text-muted mb-0">
+                        {{ APP_NAME }} does one thing well: keeps your passwords safe and accessible.
+                        No bloated features, no confusing interfaces, just peace of mind.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-5">
+        <div class="col-lg-10 mx-auto">
+            <h3 class="text-center fw-bold mb-5">Our Values</h3>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="text-center h-100">
+                        <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+                            <i class="bi bi-shield-heart text-success fs-3"></i>
+                        </div>
+                        <h5 class="fw-bold">Security First</h5>
+                        <p class="text-muted">Your data is encrypted and protected. We can't see your passwords, even if we wanted to.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="text-center h-100">
+                        <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+                            <i class="bi bi-lightning text-primary fs-3"></i>
+                        </div>
+                        <h5 class="fw-bold">Keep It Simple</h5>
+                        <p class="text-muted">Password management shouldn't be complicated. We focus on what matters most.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="text-center h-100">
+                        <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+                            <i class="bi bi-heart text-warning fs-3"></i>
+                        </div>
+                        <h5 class="fw-bold">Privacy Matters</h5>
+                        <p class="text-muted">No tracking, no ads, no selling your data. Just a tool that works for you.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-6 mx-auto text-center">
+            <div class="bg-light rounded p-4">
+                <h5 class="fw-bold mb-3">Ready to try {{ APP_NAME }}?</h5>
+                <p class="text-muted mb-3">Join us and take control of your digital security.</p>
+                <div class="d-grid gap-2 d-md-flex justify-content-center">
+                    <a href="{% url 'home' %}" class="btn btn-outline-primary">
+                        <i class="bi bi-house me-1"></i>Home
+                    </a>
+                    <a href="{% url 'register' %}" class="btn btn-primary">
+                        <i class="bi bi-shield-lock me-1"></i>Get Started
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
