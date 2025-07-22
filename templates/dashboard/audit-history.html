@@ -1,0 +1,361 @@
+{% extends 'base.html' %}
+{% block title %}Audit History - {{ APP_NAME }}{% endblock %}
+{% block content %}
+    <div class="container py-4">
+
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                        <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary me-3">
+                            <i class="bi bi-arrow-left"></i>
+                        </a>
+                        <div>
+                            <h2 class="mb-1">Security Audit History</h2>
+                            <p class="text-muted mb-0">Track your security improvements over time</p>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'security-audit' %}" class="btn btn-primary">
+                            <i class="bi bi-shield-exclamation me-1"></i>Run New Audit
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if all_audits %}
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white border-0">
+                            <h5 class="fw-bold mb-0">
+                                <i class="bi bi-graph-up me-2"></i>Security Score Trend
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row text-center g-4 mb-4">
+                                <div class="col-md-3">
+                                    <div class="p-3">
+                                        <h3 class="text-primary fw-bold mb-1">{{ all_audits.count }}</h3>
+                                        <p class="text-muted mb-0">Total Audits</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="p-3">
+                                        <h3 class="text-success fw-bold mb-1">{{ all_audits.first.security_score }}%</h3>
+                                        <p class="text-muted mb-0">Current Score</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="p-3">
+                                        {% with first_audit=all_audits.last latest_audit=all_audits.first %}
+                                            {% if all_audits.count > 1 %}
+                                                {% if latest_audit.security_score > first_audit.security_score %}
+                                                    <h3 class="text-success fw-bold mb-1">
+                                                        +{{ latest_audit.security_score|add:first_audit.security_score|add:"-"|add:first_audit.security_score }}</h3>
+                                                    <p class="text-muted mb-0">Improvement</p>
+                                                {% elif latest_audit.security_score < first_audit.security_score %}
+                                                    <h3 class="text-danger fw-bold mb-1">{{ latest_audit.security_score|add:first_audit.security_score|add:"-"|add:first_audit.security_score }}</h3>
+                                                    <p class="text-muted mb-0">Change</p>
+                                                {% else %}
+                                                    <h3 class="text-info fw-bold mb-1">0</h3>
+                                                    <p class="text-muted mb-0">No Change</p>
+                                                {% endif %}
+                                            {% else %}
+                                                <h3 class="text-muted fw-bold mb-1">-</h3>
+                                                <p class="text-muted mb-0">Improvement</p>
+                                            {% endif %}
+                                        {% endwith %}
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="p-3">
+                                        <h3 class="text-info fw-bold mb-1">{{ all_audits.first.created_at|timesince }}</h3>
+                                        <p class="text-muted mb-0">Last Audit</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-light rounded p-3">
+                                <h6 class="mb-3">Score Timeline (Last 10 Audits)</h6>
+                                <div class="d-flex align-items-end justify-content-between"
+                                     style="height: 120px; overflow: hidden;">
+                                    {% for audit in all_audits|slice:":10" %}
+                                        <div class="text-center d-flex flex-column justify-content-end"
+                                             style="flex: 1; height: 100%;">
+                                            <div class="bg-{% if audit.security_score >= 80 %}success{% elif audit.security_score >= 60 %}warning{% else %}danger{% endif %} rounded-top mx-1"
+                                                 style="height: {% widthratio audit.security_score 100 80 %}px; min-height: 8px;">
+                                            </div>
+                                            <small class="text-muted d-block mt-1">{{ audit.security_score }}%</small>
+                                            <small class="text-muted">{{ audit.created_at|date:"M d" }}</small>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card border-0 shadow-sm" id="audit-table">
+                        <div class="card-header bg-white border-0">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="fw-bold mb-0">
+                                    <i class="bi bi-list me-2"></i>All Security Audits
+                                </h5>
+                                <small class="text-muted">
+                                    Showing {{ audits.start_index }} - {{ audits.end_index }}
+                                    of {{ audits.paginator.count }} audits
+                                </small>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div id="audit-table-container">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                        <tr>
+                                            <th>Date & Time</th>
+                                            <th>Security Score</th>
+                                            <th>Total Passwords</th>
+                                            <th>Weak Passwords</th>
+                                            <th>Duplicate Passwords</th>
+                                            <th>Old Passwords</th>
+                                            <th>Status</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody id="audit-table-body">
+                                        {% for audit in audits %}
+                                            <tr>
+                                                <td>
+                                                    <div>
+                                                        <strong>{{ audit.created_at|date:"M d, Y" }}</strong>
+                                                        <br>
+                                                        <small class="text-muted">{{ audit.created_at|date:"g:i A" }}</small>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="progress me-2" style="width: 60px; height: 8px;">
+                                                            <div class="progress-bar bg-{% if audit.security_score >= 80 %}success{% elif audit.security_score >= 60 %}warning{% else %}danger{% endif %}"
+                                                                 style="width: {{ audit.security_score }}%"></div>
+                                                        </div>
+                                                        <strong>{{ audit.security_score }}%</strong>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-primary">{{ audit.total_passwords }}</span>
+                                                </td>
+                                                <td>
+                                                    {% if audit.weak_passwords > 0 %}
+                                                        <span class="badge bg-danger">{{ audit.weak_passwords }}</span>
+                                                    {% else %}
+                                                        <span class="text-success">
+                                                        <i class="bi bi-check-circle"></i> None
+                                                    </span>
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    {% if audit.duplicate_passwords > 0 %}
+                                                        <span class="badge bg-warning text-dark">{{ audit.duplicate_passwords }}</span>
+                                                    {% else %}
+                                                        <span class="text-success">
+                                                        <i class="bi bi-check-circle"></i> None
+                                                    </span>
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    {% if audit.old_passwords > 0 %}
+                                                        <span class="badge bg-info">{{ audit.old_passwords }}</span>
+                                                    {% else %}
+                                                        <span class="text-success">
+                                                        <i class="bi bi-check-circle"></i> None
+                                                    </span>
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    {% if audit.security_score >= 80 %}
+                                                        <span class="badge bg-success">Excellent</span>
+                                                    {% elif audit.security_score >= 60 %}
+                                                        <span class="badge bg-warning text-dark">Good</span>
+                                                    {% elif audit.security_score >= 40 %}
+                                                        <span class="badge bg-info">Fair</span>
+                                                    {% else %}
+                                                        <span class="badge bg-danger">Poor</span>
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+
+                            {% if audits.has_other_pages %}
+                                <div class="pagination-wrapper">
+                                    <nav aria-label="Audit history pagination">
+                                        <ul class="pagination justify-content-center" id="audit-pagination">
+                                            {% if audits.has_previous %}
+                                                <li class="page-item">
+                                                    <a class="page-link" href="#" data-page="1">
+                                                        <i class="bi bi-chevron-double-left"></i>
+                                                    </a>
+                                                </li>
+                                                <li class="page-item">
+                                                    <a class="page-link" href="#"
+                                                       data-page="{{ audits.previous_page_number }}">
+                                                        <i class="bi bi-chevron-left"></i>
+                                                    </a>
+                                                </li>
+                                            {% endif %}
+
+                                            {% for num in audits.paginator.page_range %}
+                                                {% if audits.number == num %}
+                                                    <li class="page-item active">
+                                                        <span class="page-link">{{ num }}</span>
+                                                    </li>
+                                                {% elif num > audits.number|add:'-3' and num < audits.number|add:'3' %}
+                                                    <li class="page-item">
+                                                        <a class="page-link" href="#"
+                                                           data-page="{{ num }}">{{ num }}</a>
+                                                    </li>
+                                                {% endif %}
+                                            {% endfor %}
+
+                                            {% if audits.has_next %}
+                                                <li class="page-item">
+                                                    <a class="page-link" href="#"
+                                                       data-page="{{ audits.next_page_number }}">
+                                                        <i class="bi bi-chevron-right"></i>
+                                                    </a>
+                                                </li>
+                                                <li class="page-item">
+                                                    <a class="page-link" href="#"
+                                                       data-page="{{ audits.paginator.num_pages }}">
+                                                        <i class="bi bi-chevron-double-right"></i>
+                                                    </a>
+                                                </li>
+                                            {% endif %}
+                                        </ul>
+                                    </nav>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+
+            <div class="row">
+                <div class="col-12">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body text-center py-5">
+                            <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                                 style="width: 80px; height: 80px;">
+                                <i class="bi bi-shield-exclamation text-primary" style="font-size: 2rem;"></i>
+                            </div>
+                            <h4 class="fw-bold mb-3">No Security Audits Yet</h4>
+                            <p class="text-muted mb-4">
+                                Run your first security audit to see how secure your passwords are and track
+                                improvements over time.
+                            </p>
+                            <a href="{% url 'security-audit' %}" class="btn btn-primary btn-lg">
+                                <i class="bi bi-shield-exclamation me-2"></i>Run First Security Audit
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            function showLoading() {
+                document.getElementById('audit-table-body').innerHTML = `
+                <tr>
+                    <td colspan="7" class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <div class="mt-2">Loading...</div>
+                    </td>
+                </tr>
+            `;
+            }
+
+            document.addEventListener('click', function (e) {
+                if (e.target.closest('#audit-pagination a[data-page]')) {
+                    e.preventDefault();
+                    const pageNum = e.target.closest('a').dataset.page;
+                    loadPage(pageNum);
+                }
+            });
+
+            function loadPage(page) {
+                showLoading();
+
+                fetch(`?page=${page}`, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                    }
+                })
+                    .then(response => response.text())
+                    .then(html => {
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+
+
+                        const newTableBody = doc.querySelector('#audit-table-body');
+                        if (newTableBody) {
+                            document.getElementById('audit-table-body').innerHTML = newTableBody.innerHTML;
+                        }
+
+
+                        const newPagination = doc.querySelector('#audit-pagination');
+                        if (newPagination) {
+                            document.getElementById('audit-pagination').innerHTML = newPagination.innerHTML;
+                        }
+
+
+                        const newShowingInfo = doc.querySelector('.card-header small');
+                        const currentShowingInfo = document.querySelector('.card-header small');
+                        if (newShowingInfo && currentShowingInfo) {
+                            currentShowingInfo.textContent = newShowingInfo.textContent;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error loading page:', error);
+                        document.getElementById('audit-table-body').innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center py-4 text-danger">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            Error loading data. Please try again.
+                        </td>
+                    </tr>
+                `;
+                    });
+            }
+        });
+    </script>
+
+    <style>
+        #audit-table-container {
+            min-height: 400px;
+            transition: opacity 0.3s ease;
+        }
+
+        .pagination .page-link {
+            transition: all 0.3s ease;
+        }
+
+        .pagination .page-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+{% endblock %}

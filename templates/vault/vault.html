@@ -1,0 +1,295 @@
+{% extends 'base.html' %}
+
+{% block title %}Password Vault - {{ APP_NAME }}{% endblock %}
+
+{% block content %}
+    <div class="container py-4">
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center flex-wrap">
+            <div class="d-flex align-items-center">
+                <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary me-3">
+                    <i class="bi bi-arrow-left"></i>
+                </a>
+                <div>
+                    <h2 class="mb-1">
+                        <i class="bi bi-key me-2"></i>Password Vault
+                    </h2>
+                    <p class="text-muted mb-0">
+                        {{ total_passwords }} password{{ total_passwords|pluralize }}
+                        {% if weak_passwords > 0 %}
+                            <span class="text-warning">• {{ weak_passwords }} weak</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'password-generator' %}" class="btn btn-outline-primary">
+                    <i class="bi bi-shuffle me-1"></i>Generate
+                </a>
+                <a href="{% url 'add-password' %}" class="btn btn-primary">
+                    <i class="bi bi-plus-lg me-1"></i>Add Password
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <form method="get" class="row g-3">
+                            <div class="col-md-6">
+                                <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="bi bi-search"></i>
+                                </span>
+                                    <input type="text"
+                                           name="search"
+                                           class="form-control"
+                                           placeholder="Search passwords..."
+                                           value="{{ search_query }}">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <select name="category" class="form-select">
+                                    <option value="">All Categories</option>
+                                    {% for category in categories %}
+                                        <option value="{{ category.id }}"
+                                                {% if selected_category == category.id|stringformat:'s' %}selected{% endif %}>
+                                            {{ category.name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-outline-primary">
+                                        <i class="bi bi-funnel me-1"></i>Filter
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        {% if passwords %}
+            <div class="row g-4">
+                {% for password in passwords %}
+                    <div class="col-lg-4 col-md-6">
+                        <div class="card border-0 shadow-sm h-100 password-card">
+                            <div class="card-body">
+
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <div class="d-flex align-items-center">
+                                        {% if password.category %}
+                                            <div class="rounded-circle d-flex align-items-center justify-content-center me-2"
+                                                 style="width: 35px; height: 35px; background-color: {{ password.category.color }}20;">
+                                                <i class="bi bi-{{ password.category.icon }}"
+                                                   style="color: {{ password.category.color }};"></i>
+                                            </div>
+                                        {% else %}
+                                            <div class="bg-secondary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-2"
+                                                 style="width: 35px; height: 35px;">
+                                                <i class="bi bi-key text-secondary"></i>
+                                            </div>
+                                        {% endif %}
+                                        <div>
+                                            <a href="{% url 'password-detail' password.pk %}"
+                                               class="text-decoration-none">
+                                                <h6 class="mb-0 fw-bold text-dark">{{ password.title }}</h6>
+                                            </a>
+                                            {% if password.category %}
+                                                <small class="text-muted">{{ password.category.name }}</small>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
+                                    {% if password.strength_score >= 80 %}
+                                        <span class="badge bg-success">Strong</span>
+                                    {% elif password.strength_score >= 60 %}
+                                        <span class="badge bg-warning text-dark">Good</span>
+                                    {% elif password.strength_score >= 40 %}
+                                        <span class="badge bg-info">Fair</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Weak</span>
+                                    {% endif %}
+                                </div>
+
+                                <div class="mb-3">
+                                    {% if password.username %}
+                                        <div class="small text-muted mb-1">
+                                            <i class="bi bi-person me-1"></i>{{ password.username }}
+                                        </div>
+                                    {% endif %}
+                                    {% if password.email %}
+                                        <div class="small text-muted mb-1">
+                                            <i class="bi bi-envelope me-1"></i>{{ password.email }}
+                                        </div>
+                                    {% endif %}
+                                    {% if password.website %}
+                                        <div class="small text-muted mb-1">
+                                            <i class="bi bi-globe me-1"></i>
+                                            <a href="{{ password.website }}" target="_blank"
+                                               class="text-decoration-none">
+                                                {{ password.website|truncatechars:30 }}
+                                            </a>
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="mb-3">
+                                    <div class="input-group">
+                                        <input type="password"
+                                               class="form-control form-control-sm password-field"
+                                               value="{{ password.password }}"
+                                               readonly
+                                               id="password-{{ password.id }}">
+                                        <button class="btn btn-outline-secondary btn-sm toggle-password"
+                                                type="button"
+                                                data-target="password-{{ password.id }}">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                        <button class="btn btn-outline-primary btn-sm copy-password"
+                                                type="button"
+                                                data-password="{{ password.password }}"
+                                                data-title="{{ password.title }}">
+                                            <i class="bi bi-clipboard"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">
+                                        Updated {{ password.updated_at|timesince }} ago
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            {% if is_paginated %}
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <nav aria-label="Password pagination">
+                            <ul class="pagination justify-content-center">
+                                {% if page_obj.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link"
+                                           href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}">First</a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page=
+                                                {{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}">Previous</a>
+                                    </li>
+                                {% endif %}
+
+                                <li class="page-item active">
+                                    <span class="page-link">{{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                                </li>
+
+                                {% if page_obj.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page=
+                                                {{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}">Next</a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page=
+                                                {{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}">Last</a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            {% endif %}
+        {% else %}
+
+            <div class="row">
+                <div class="col-12">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body text-center py-5">
+                            <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                                 style="width: 80px; height: 80px;">
+                                <i class="bi bi-key text-primary" style="font-size: 2rem;"></i>
+                            </div>
+                            <h4 class="fw-bold mb-3">No Passwords Yet</h4>
+                            <p class="text-muted mb-4">
+                                {% if search_query or selected_category %}
+                                    No passwords match your search criteria. Try adjusting your filters.
+                                {% else %}
+                                    Start securing your accounts by adding your first password to the vault.
+                                {% endif %}
+                            </p>
+                            {% if not search_query and not selected_category %}
+                                <a href="{% url 'add-password' %}" class="btn btn-primary btn-lg">
+                                    <i class="bi bi-plus-lg me-2"></i>Add Your First Password
+                                </a>
+                            {% else %}
+                                <a href="{% url 'vault' %}" class="btn btn-outline-primary">
+                                    <i class="bi bi-arrow-left me-1"></i>Clear Filters
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="copyToast" class="toast" role="alert">
+            <div class="toast-body">
+                <i class="bi bi-check-circle text-success me-2"></i>
+                <span id="toastMessage">Password copied to clipboard!</span>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            document.querySelectorAll('.toggle-password').forEach(button => {
+                button.addEventListener('click', function () {
+                    const targetId = this.getAttribute('data-target');
+                    const passwordField = document.getElementById(targetId);
+                    const icon = this.querySelector('i');
+
+                    if (passwordField.type === 'password') {
+                        passwordField.type = 'text';
+                        icon.className = 'bi bi-eye-slash';
+                    } else {
+                        passwordField.type = 'password';
+                        icon.className = 'bi bi-eye';
+                    }
+                });
+            });
+
+
+            document.querySelectorAll('.copy-password').forEach(button => {
+                button.addEventListener('click', function () {
+                    const password = this.getAttribute('data-password');
+                    const title = this.getAttribute('data-title');
+
+                    navigator.clipboard.writeText(password).then(function () {
+                        const toastMessage = document.getElementById('toastMessage');
+                        toastMessage.textContent = `Password for ${title} copied to clipboard!`;
+
+                        const toast = new bootstrap.Toast(document.getElementById('copyToast'));
+                        toast.show();
+                    });
+                });
+            });
+        });
+    </script>
+{% endblock %}

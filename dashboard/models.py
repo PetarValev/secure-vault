@@ -11,7 +11,6 @@ UserModel = get_user_model()
 class SecurityAudit(models.Model):
     user = models.ForeignKey(UserModel, on_delete=models.CASCADE, related_name='audits')
 
-    # Audit results
     total_passwords = models.IntegerField(default=0)
     weak_passwords = models.IntegerField(default=0)
     duplicate_passwords = models.IntegerField(default=0)

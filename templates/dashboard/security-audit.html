@@ -1,0 +1,419 @@
+{% extends 'base.html' %}
+{% block title %}Security Audit - {{ APP_NAME }}{% endblock %}
+{% block content %}
+    <div class="container py-4">
+
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                        <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary me-3">
+                            <i class="bi bi-arrow-left"></i>
+                        </a>
+                        <div>
+                            <h2 class="mb-1">Security Audit</h2>
+                            <p class="text-muted mb-0">Analyze your password security and get recommendations</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm" id="audit-results-card">
+
+                    <div class="card-body text-center py-5" id="empty-state">
+                        <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-4"
+                             style="width: 80px; height: 80px;">
+                            <i class="bi bi-shield-check text-primary" style="font-size: 2.5rem;"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Ready to Audit Your Passwords?</h4>
+                        <p class="text-muted mb-4">
+                            {% if has_passwords %}
+                                Run a comprehensive security audit to analyze your password strength, find duplicates,
+                                and get personalized recommendations.
+                            {% else %}
+                                You don't have any passwords to audit yet. Add some passwords to your vault first.
+                            {% endif %}
+                        </p>
+                        {% if has_passwords %}
+                            <button class="btn btn-primary btn-lg" id="run-audit-btn">
+                                <i class="bi bi-play-circle me-2"></i>Run Security Audit
+                            </button>
+                        {% else %}
+                            <a href="{% url 'add-password' %}" class="btn btn-primary btn-lg">
+                                <i class="bi bi-plus-lg me-2"></i>Add Your First Password
+                            </a>
+                        {% endif %}
+                    </div>
+
+
+                    <div class="card-body text-center py-5 d-none" id="loading-state">
+                        <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <h4 class="fw-bold mb-2">Running Security Audit...</h4>
+                        <p class="text-muted mb-0">Analyzing your passwords and calculating security score</p>
+                    </div>
+
+
+                    <div class="d-none" id="results-state">
+                        <div class="card-header text-white" id="results-header">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <h4 class="mb-0">
+                                        <i class="bi bi-shield-check me-2"></i>
+                                        Overall Security Score: <span id="security-score">0</span>%
+                                    </h4>
+                                    <small class="opacity-75">Audit completed on <span id="audit-date"></span></small>
+                                </div>
+                                <div class="col-auto">
+                                    <div class="text-end">
+                                        <i id="security-emoji" class="fs-1"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row text-center g-4">
+                                <div class="col-md-3">
+                                    <div class="p-3">
+                                        <h3 class="text-primary fw-bold mb-1" id="total-passwords">0</h3>
+                                        <p class="text-muted mb-0">Total Passwords</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="p-3">
+                                        <h3 class="fw-bold mb-1" id="weak-passwords">0</h3>
+                                        <p class="text-muted mb-0">Weak Passwords</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="p-3">
+                                        <h3 class="fw-bold mb-1" id="duplicate-passwords">0</h3>
+                                        <p class="text-muted mb-0">Duplicate Passwords</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="p-3">
+                                        <h3 class="fw-bold mb-1" id="old-passwords">0</h3>
+                                        <p class="text-muted mb-0">Old Passwords (90+ days)</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-center mt-4">
+                                <button class="btn btn-outline-primary" id="run-new-audit-btn">
+                                    <i class="bi bi-arrow-clockwise me-1"></i>Run New Audit
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row mb-4 d-none" id="password-analysis-section">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-0">
+                        <h5 class="fw-bold mb-0">
+                            <i class="bi bi-list-check me-2"></i>Password Analysis
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                <tr>
+                                    <th>Website/Service</th>
+                                    <th>Username</th>
+                                    <th>Strength</th>
+                                    <th>Issues</th>
+                                    <th>Last Updated</th>
+                                </tr>
+                                </thead>
+                                <tbody id="password-analysis-table">
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        {% if audit_history %}
+            <div class="row">
+                <div class="col-12">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white border-0">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="fw-bold mb-0">
+                                    <i class="bi bi-graph-up me-2"></i>Recent Audit History
+                                </h5>
+                                <a href="{% url 'audit-history' %}" class="btn btn-sm btn-outline-primary">View All</a>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Security Score</th>
+                                        <th>Total Passwords</th>
+                                        <th>Weak</th>
+                                        <th>Duplicates</th>
+                                        <th>Old</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="audit-history-table">
+                                    {% for audit in audit_history %}
+                                        <tr>
+                                            <td>{{ audit.created_at|date:"M d, Y" }}</td>
+                                            <td>
+                                                <span class="badge bg-{% if audit.security_score >= 80 %}success{% elif audit.security_score >= 60 %}warning{% else %}danger{% endif %}">
+                                                    {{ audit.security_score }}%
+                                                </span>
+                                            </td>
+                                            <td>{{ audit.total_passwords }}</td>
+                                            <td>{{ audit.weak_passwords }}</td>
+                                            <td>{{ audit.duplicate_passwords }}</td>
+                                            <td>{{ audit.old_passwords }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="auditToast" class="toast" role="alert">
+            <div class="toast-body">
+                <i class="bi bi-check-circle text-success me-2"></i>
+                <span id="auditToastMessage">Audit completed successfully!</span>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const runAuditBtn = document.getElementById('run-audit-btn');
+            const runNewAuditBtn = document.getElementById('run-new-audit-btn');
+            const emptyState = document.getElementById('empty-state');
+            const loadingState = document.getElementById('loading-state');
+            const resultsState = document.getElementById('results-state');
+            const passwordAnalysisSection = document.getElementById('password-analysis-section');
+
+            function runAudit() {
+
+                emptyState.classList.add('d-none');
+                resultsState.classList.add('d-none');
+                loadingState.classList.remove('d-none');
+                passwordAnalysisSection.classList.add('d-none');
+
+
+                fetch('{% url "run-security-audit" %}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'Content-Type': 'application/json',
+                    },
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            displayResults(data.audit, data.password_analysis);
+                            showToast(data.message);
+                            updateAuditHistory(data.audit);
+                        } else {
+                            showError(data.error || 'Audit failed');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showError('An error occurred while running the audit');
+                    });
+            }
+
+            function displayResults(audit, passwordAnalysis) {
+
+                loadingState.classList.add('d-none');
+                resultsState.classList.remove('d-none');
+                passwordAnalysisSection.classList.remove('d-none');
+
+
+                const header = document.getElementById('results-header');
+                const score = audit.security_score;
+                if (score >= 80) {
+                    header.className = 'card-header bg-success text-white';
+                } else if (score >= 60) {
+                    header.className = 'card-header bg-warning text-white';
+                } else {
+                    header.className = 'card-header bg-danger text-white';
+                }
+
+
+                document.getElementById('security-score').textContent = score;
+                document.getElementById('audit-date').textContent = audit.created_at;
+                document.getElementById('total-passwords').textContent = audit.total_passwords;
+
+
+                const weakElement = document.getElementById('weak-passwords');
+                weakElement.textContent = audit.weak_passwords;
+                weakElement.className = audit.weak_passwords === 0 ? 'text-success fw-bold mb-1' : 'text-danger fw-bold mb-1';
+
+
+                const duplicateElement = document.getElementById('duplicate-passwords');
+                duplicateElement.textContent = audit.duplicate_passwords;
+                duplicateElement.className = audit.duplicate_passwords === 0 ? 'text-success fw-bold mb-1' : 'text-warning fw-bold mb-1';
+
+
+                const oldElement = document.getElementById('old-passwords');
+                oldElement.textContent = audit.old_passwords;
+                oldElement.className = audit.old_passwords === 0 ? 'text-success fw-bold mb-1' : 'text-info fw-bold mb-1';
+
+
+                const emoji = document.getElementById('security-emoji');
+                if (score >= 80) {
+                    emoji.className = 'bi bi-emoji-smile fs-1';
+                } else if (score >= 60) {
+                    emoji.className = 'bi bi-emoji-neutral fs-1';
+                } else {
+                    emoji.className = 'bi bi-emoji-frown fs-1';
+                }
+
+
+                updatePasswordAnalysisTable(passwordAnalysis);
+            }
+
+            function updatePasswordAnalysisTable(passwordAnalysis) {
+                const tableBody = document.getElementById('password-analysis-table');
+                tableBody.innerHTML = '';
+
+                passwordAnalysis.forEach(analysis => {
+                    const row = document.createElement('tr');
+
+
+                    let strengthBadge = '';
+                    const score = analysis.entry.strength_score;
+                    if (score >= 80) {
+                        strengthBadge = '<span class="badge bg-success">Strong</span>';
+                    } else if (score >= 60) {
+                        strengthBadge = '<span class="badge bg-warning">Good</span>';
+                    } else if (score >= 40) {
+                        strengthBadge = '<span class="badge bg-info">Fair</span>';
+                    } else {
+                        strengthBadge = '<span class="badge bg-danger">Weak</span>';
+                    }
+
+
+                    let issuesHtml = '';
+                    if (analysis.issues.length > 0) {
+                        issuesHtml = analysis.issues.map(issue =>
+                            `<span class="badge bg-warning text-dark me-1">${issue}</span>`
+                        ).join('');
+                    } else {
+                        issuesHtml = '<span class="text-success"><i class="bi bi-check-circle me-1"></i>No issues</span>';
+                    }
+
+
+                    const updatedAt = new Date(analysis.entry.updated_at);
+                    const now = new Date();
+                    const diffTime = Math.abs(now - updatedAt);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    const timeAgo = diffDays === 1 ? '1 day ago' : `${diffDays} days ago`;
+
+                    row.innerHTML = `
+                <td>
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-key me-2 text-muted"></i>
+                        <strong>${analysis.entry.title}</strong>
+                    </div>
+                </td>
+                <td>${analysis.entry.username}</td>
+                <td>${strengthBadge}</td>
+                <td>${issuesHtml}</td>
+                <td><small class="text-muted">${timeAgo}</small></td>
+            `;
+
+                    tableBody.appendChild(row);
+                });
+            }
+
+            function updateAuditHistory(audit) {
+                const historyTable = document.getElementById('audit-history-table');
+                if (historyTable) {
+
+                    const newRow = document.createElement('tr');
+
+                    let scoreBadgeClass = '';
+                    if (audit.security_score >= 80) {
+                        scoreBadgeClass = 'bg-success';
+                    } else if (audit.security_score >= 60) {
+                        scoreBadgeClass = 'bg-warning';
+                    } else {
+                        scoreBadgeClass = 'bg-danger';
+                    }
+
+                    newRow.innerHTML = `
+                <td>Just now</td>
+                <td>
+                    <span class="badge ${scoreBadgeClass}">
+                        ${audit.security_score}%
+                    </span>
+                </td>
+                <td>${audit.total_passwords}</td>
+                <td>${audit.weak_passwords}</td>
+                <td>${audit.duplicate_passwords}</td>
+                <td>${audit.old_passwords}</td>
+            `;
+
+                    historyTable.insertBefore(newRow, historyTable.firstChild);
+
+                    if (historyTable.children.length > 5) {
+                        historyTable.removeChild(historyTable.lastChild);
+                    }
+                }
+            }
+
+            function showError(message) {
+                loadingState.classList.add('d-none');
+                emptyState.classList.remove('d-none');
+
+                document.getElementById('auditToastMessage').textContent = message;
+                document.querySelector('#auditToast .bi').className = 'bi bi-exclamation-triangle text-danger me-2';
+                const toast = new bootstrap.Toast(document.getElementById('auditToast'));
+                toast.show();
+            }
+
+            function showToast(message) {
+                document.getElementById('auditToastMessage').textContent = message;
+                document.querySelector('#auditToast .bi').className = 'bi bi-check-circle text-success me-2';
+                const toast = new bootstrap.Toast(document.getElementById('auditToast'));
+                toast.show();
+            }
+
+
+            if (runAuditBtn) {
+                runAuditBtn.addEventListener('click', runAudit);
+            }
+
+            if (runNewAuditBtn) {
+                runNewAuditBtn.addEventListener('click', runAudit);
+            }
+        });
+    </script>
+{% endblock %}

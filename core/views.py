@@ -5,7 +5,7 @@ from accounts.models import UserProfile
 
 def home_view(request):
     if request.user.is_authenticated:
-        return redirect('dashboard:home')
+        return redirect('dashboard')
 
     context = {
         'total_users': UserProfile.objects.count(),

@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+from core.utils import calculate_password_strength
 
 UserModel = get_user_model()
 
@@ -42,21 +43,7 @@ class PasswordEntry(models.Model):
         return f"{self.user.username} - {self.title}"
 
     def check_password_strength(self):
-        password = self.password
-        score = 0
-
-        if len(password) >= 8:
-            score += 25
-        if len(password) >= 12:
-            score += 25
-        if any(c.isupper() for c in password):
-            score += 15
-        if any(c.islower() for c in password):
-            score += 15
-        if any(c.isdigit() for c in password):
-            score += 10
-        if any(c in '!@#$%^&*()_+-=[]{}|;:,.<>?' for c in password):
-            score += 10
+        score = calculate_password_strength(self.password)
 
         self.strength_score = min(score, 100)
         self.is_weak = score < 60

@@ -1,0 +1,215 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - {{ APP_NAME }}{% endblock %}
+
+{% block content %}
+    <div class="container py-4">
+
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h2 class="mb-1">Welcome back, {{ user.get_full_name|default:user.username }}!</h2>
+                        <p class="text-muted mb-0">Here's your security overview</p>
+                    </div>
+                    <div class="text-end">
+                        <small class="text-muted">Last
+                            login: {{ user.last_login|date:"M d, Y \a\t g:i A"|default:"First time" }}</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row g-4 mb-4">
+            <div class="col-lg-3 col-md-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center">
+                        <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                             style="width: 60px; height: 60px;">
+                            <i class="bi bi-key text-primary fs-4"></i>
+                        </div>
+                        <h3 class="fw-bold text-primary mb-1">{{ total_passwords }}</h3>
+                        <p class="text-muted mb-0">Stored Passwords</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center">
+                        <div class="bg-{% if weak_passwords == 0 %}success{% else %}warning{% endif %} bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                             style="width: 60px; height: 60px;">
+                            <i class="bi bi-{% if weak_passwords == 0 %}shield-check{% else %}exclamation-triangle{% endif %} text-{% if weak_passwords == 0 %}success{% else %}warning{% endif %} fs-4"></i>
+                        </div>
+                        <h3 class="fw-bold text-{% if weak_passwords == 0 %}success{% else %}warning{% endif %} mb-1">{{ weak_passwords }}</h3>
+                        <p class="text-muted mb-0">Weak Passwords</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center">
+                        <div class="bg-{% if security_score >= 80 %}success{% elif security_score >= 60 %}warning{% else %}danger{% endif %} bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                             style="width: 60px; height: 60px;">
+                            <i class="bi bi-speedometer2 text-{% if security_score >= 80 %}success{% elif security_score >= 60 %}warning{% else %}danger{% endif %} fs-4"></i>
+                        </div>
+                        <h3 class="fw-bold text-{% if security_score >= 80 %}success{% elif security_score >= 60 %}warning{% else %}danger{% endif %} mb-1">{{ security_score }}%</h3>
+                        <p class="text-muted mb-0">Security Score</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center">
+                        <div class="bg-info bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                             style="width: 60px; height: 60px;">
+                            <i class="bi bi-clock-history text-info fs-4"></i>
+                        </div>
+                        <h3 class="fw-bold text-info mb-1">
+                            {% if last_audit_date %}
+                                {{ last_audit_date|timesince }}
+                            {% else %}
+                                Never
+                            {% endif %}
+                        </h3>
+                        <p class="text-muted mb-0">Last Audit</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+
+            <div class="col-lg-8 mb-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-0">
+                        <h5 class="fw-bold mb-0">
+                            <i class="bi bi-lightning me-2"></i>Quick Actions
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <a href="{% url 'vault' %}" class="btn btn-primary w-100 p-3">
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-key me-3 fs-4"></i>
+                                        <div class="text-start">
+                                            <div class="fw-medium">View Vault</div>
+                                            <small class="text-white-50">Manage all your passwords</small>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="{% url 'add-password' %}" class="btn btn-success w-100 p-3">
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-plus-lg me-3 fs-4"></i>
+                                        <div class="text-start">
+                                            <div class="fw-medium">Add Password</div>
+                                            <small class="text-white-50">Store a new password securely</small>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="{% url 'security-audit' %}" class="btn btn-warning w-100 p-3">
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-shield-exclamation me-3 fs-4"></i>
+                                        <div class="text-start">
+                                            <div class="fw-medium">Security Audit</div>
+                                            <small class="text-dark opacity-75">Check password strength</small>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="{% url 'audit-history' %}" class="btn btn-info w-100 p-3">
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi-journal-text me-3 fs-4"></i>
+                                        <div class="text-start">
+                                            <div class="fw-medium">Audit History</div>
+                                            <small class="text-white-50">View previous security audits</small>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="col-lg-4 mb-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white border-0">
+                        <h5 class="fw-bold mb-0">
+                            <i class="bi bi-lightbulb me-2"></i>Recommendations
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        {% if recommendations %}
+                            {% for recommendation in recommendations %}
+                                <div class="d-flex align-items-start mb-3">
+                                    <div class="bg-warning bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3"
+                                         style="width: 30px; height: 30px; flex-shrink: 0;">
+                                        <i class="bi bi-exclamation text-warning small"></i>
+                                    </div>
+                                    <p class="mb-0 small">{{ recommendation }}</p>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="text-center py-3">
+                                <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-2"
+                                     style="width: 50px; height: 50px;">
+                                    <i class="bi bi-check-circle text-success"></i>
+                                </div>
+                                <p class="text-muted mb-0 small">Great! No security issues found.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        {% if recent_activity %}
+            <div class="row">
+                <div class="col-12">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white border-0">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="fw-bold mb-0">
+                                    <i class="bi bi-clock-history me-2"></i>Recent Activity
+                                </h5>
+                                <a href="{% url 'recent-activity' %}" class="btn btn-sm btn-outline-primary">View
+                                    All</a>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="list-group list-group-flush">
+                                {% for activity in recent_activity %}
+                                    <div class="list-group-item border-0 px-0">
+                                        <div class="d-flex align-items-center">
+                                            <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3"
+                                                 style="width: 35px; height: 35px;">
+                                                <i class="bi bi-{% if activity.action == 'create' %}plus{% elif activity.action == 'update' %}pencil{% elif activity.action == 'delete' %}trash{% elif activity.action == 'login' %}box-arrow-in-right{% elif activity.action == 'logout' %}box-arrow-left{% else %}gear{% endif %} text-primary small"></i>
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <div class="fw-medium">{{ activity.get_action_display }}</div>
+                                                <small class="text-muted">{{ activity.details }}</small>
+                                            </div>
+                                            <small class="text-muted">{{ activity.timestamp|timesince }} ago</small>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

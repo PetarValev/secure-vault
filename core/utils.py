@@ -6,16 +6,6 @@ from django.contrib.auth import get_user_model
 
 UserModel = get_user_model()
 
-
-def generate_secure_password(length=12, include_symbols=True):
-    characters = string.ascii_letters + string.digits
-    if include_symbols:
-        characters += "!@#$%^&*()_+-="
-
-    password = ''.join(secrets.choice(characters) for _ in range(length))
-    return password
-
-
 def get_user_stats():
     return {
         'total_users': UserModel.objects.filter(is_active=True).count(),

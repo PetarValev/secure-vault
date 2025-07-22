@@ -1,13 +1,21 @@
+import json
+
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
-from django.contrib.auth import login
+from django.contrib.auth import login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib import messages
+from django.views import View
 from django.views.generic import CreateView, TemplateView
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
-from .forms import CustomUserCreationForm, CustomAuthenticationForm, UserUpdateForm, ProfileUpdateForm
-
+from accounts.forms import CustomUserCreationForm, CustomAuthenticationForm, UserUpdateForm, ProfileUpdateForm
+from core.utils import get_client_ip, get_user_agent
+from dashboard.choices import ActionChoices
+from dashboard.models import AuditLog
 
 
 class CustomRegisterView(CreateView):
@@ -36,14 +44,31 @@ class CustomLoginView(LoginView):
         return reverse_lazy('dashboard')
 
     def form_valid(self, form):
+        AuditLog.objects.create(
+            user=form.get_user(),
+            action=ActionChoices.LOGIN,
+            details="User logged in",
+            ip_address=get_client_ip(self.request),
+            user_agent=get_user_agent(self.request)
+        )
+
         messages.success(self.request, f'Welcome back, {form.get_user().username}!')
         return super().form_valid(form)
 
 
 class CustomLogoutView(LogoutView):
-    next_page = 'login'
+    next_page = 'home'
 
     def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            AuditLog.objects.create(
+                user=request.user,
+                action=ActionChoices.LOGOUT,
+                details="User logged out",
+                ip_address=get_client_ip(request),
+                user_agent=get_user_agent(request)
+            )
+
         messages.info(request, 'You have been logged out successfully.')
         return super().dispatch(request, *args, **kwargs)
 
@@ -75,6 +100,15 @@ def profile_edit(request):
             user_form.save()
             profile_form.save()
             messages.success(request, 'Your profile has been updated successfully!')
+
+            AuditLog.objects.create(
+                user=request.user,
+                action=ActionChoices.UPDATE,
+                details="Updated profile information",
+                ip_address=get_client_ip(request),
+                user_agent=get_user_agent(request)
+            )
+
             return redirect('profile')
     else:
         user_form = UserUpdateForm(instance=request.user)
@@ -84,5 +118,88 @@ def profile_edit(request):
         'user_form': user_form,
         'profile_form': profile_form
     }
-    return render(request, 'accounts/profile_edit.html', context)
 
+    return render(request, 'accounts/profile-edit.html', context)
+
+
+class DeleteAccountView(LoginRequiredMixin, View):
+    template_name = 'accounts/delete_account.html'
+
+    def get(self, request):
+        return render(request, self.template_name, {'user': request.user})
+
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
+            password = data.get('password')
+
+            if not request.user.check_password(password):
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Invalid password'
+                })
+
+            username = request.user.username
+
+            request.user.delete()
+            logout(request)
+
+            return JsonResponse({
+                'success': True,
+                'message': f'Account {username} has been permanently deleted.'
+            })
+
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'error': 'Something went wrong. Please try again.'
+            })
+
+
+class CustomPasswordChangeView(LoginRequiredMixin, View):
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
+            old_password = data.get('old_password')
+            new_password1 = data.get('new_password1')
+            new_password2 = data.get('new_password2')
+
+            form_data = {
+                'old_password': old_password,
+                'new_password1': new_password1,
+                'new_password2': new_password2
+            }
+            form = PasswordChangeForm(request.user, form_data)
+
+            if form.is_valid():
+                user = form.save()
+                update_session_auth_hash(request, user)
+
+                AuditLog.objects.create(
+                    user=request.user,
+                    action='update',
+                    details=f'Password changed for user {request.user.username}',
+                    ip_address=request.META.get('REMOTE_ADDR')
+                )
+
+                return JsonResponse({
+                    'success': True,
+                    'message': 'Password changed successfully!'
+                })
+
+            else:
+                errors = []
+                for field, field_errors in form.errors.items():
+                    for error in field_errors:
+                        errors.append(str(error))
+
+                return JsonResponse({
+                    'success': False,
+                    'error': ' '.join(errors)
+                })
+
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'error': 'Something went wrong. Please try again.'
+            })

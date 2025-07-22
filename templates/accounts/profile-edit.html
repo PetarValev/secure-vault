@@ -3,271 +3,103 @@
 {% block title %}Edit Profile - {{ APP_NAME }}{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-
-            <div class="d-flex align-items-center mb-4">
-                <a href="{% url 'profile' %}" class="btn btn-outline-secondary me-3">
-                    <i class="bi bi-arrow-left"></i>
-                </a>
-                <div>
+    <div class="container py-5">
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex align-items-center">
+                    <a href="{% url 'profile' %}" class="btn btn-outline-secondary me-3">
+                        <i class="bi bi-arrow-left"></i>
+                    </a>
                     <h2 class="mb-0">Edit Profile</h2>
-                    <p class="text-muted mb-0">Update your account information and preferences</p>
                 </div>
             </div>
-
-            <form method="post" enctype="multipart/form-data">
-                {% csrf_token %}
-
-                <div class="row">
-
-                    <div class="col-12 mb-4">
-                        <div class="card border-0 shadow-sm">
-                            <div class="card-header bg-white border-0">
-                                <h5 class="fw-bold mb-0">
-                                    <i class="bi bi-person-gear me-2"></i>Account Information
-                                </h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="row g-3">
-
-                                    <div class="col-md-6">
-                                        <label for="{{ user_form.username.id_for_label }}" class="form-label">
-                                            <i class="bi bi-person me-1"></i>Username
-                                        </label>
-                                        {{ user_form.username }}
-                                        {% if user_form.username.errors %}
-                                            <div class="text-danger small mt-1">
-                                                {% for error in user_form.username.errors %}
-                                                    <div>{{ error }}</div>
-                                                {% endfor %}
-                                            </div>
-                                        {% endif %}
-                                        <div class="form-text">
-                                            <small>Your username is used for login and identification.</small>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <label for="{{ user_form.email.id_for_label }}" class="form-label">
-                                            <i class="bi bi-envelope me-1"></i>Email Address
-                                        </label>
-                                        {{ user_form.email }}
-                                        {% if user_form.email.errors %}
-                                            <div class="text-danger small mt-1">
-                                                {% for error in user_form.email.errors %}
-                                                    <div>{{ error }}</div>
-                                                {% endfor %}
-                                            </div>
-                                        {% endif %}
-                                        <div class="form-text">
-                                            <small>Used for important security notifications.</small>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <label for="{{ user_form.first_name.id_for_label }}" class="form-label">
-                                            <i class="bi bi-card-text me-1"></i>First Name
-                                        </label>
-                                        {{ user_form.first_name }}
-                                        {% if user_form.first_name.errors %}
-                                            <div class="text-danger small mt-1">
-                                                {% for error in user_form.first_name.errors %}
-                                                    <div>{{ error }}</div>
-                                                {% endfor %}
-                                            </div>
-                                        {% endif %}
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <label for="{{ user_form.last_name.id_for_label }}" class="form-label">
-                                            <i class="bi bi-card-text me-1"></i>Last Name
-                                        </label>
-                                        {{ user_form.last_name }}
-                                        {% if user_form.last_name.errors %}
-                                            <div class="text-danger small mt-1">
-                                                {% for error in user_form.last_name.errors %}
-                                                    <div>{{ error }}</div>
-                                                {% endfor %}
-                                            </div>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-12 mb-4">
-                        <div class="card border-0 shadow-sm">
-                            <div class="card-header bg-white border-0">
-                                <h5 class="fw-bold mb-0">
-                                    <i class="bi bi-sliders me-2"></i>Profile Settings
-                                </h5>
-                            </div>
-                            <div class="card-body">
-
-                                {% for field in profile_form %}
-                                    <div class="mb-3">
-                                        <label for="{{ field.id_for_label }}" class="form-label">
-                                            {{ field.label }}
-                                        </label>
-                                        {{ field }}
-                                        {% if field.errors %}
-                                            <div class="text-danger small mt-1">
-                                                {% for error in field.errors %}
-                                                    <div>{{ error }}</div>
-                                                {% endfor %}
-                                            </div>
-                                        {% endif %}
-                                        {% if field.help_text %}
-                                            <div class="form-text">
-                                                <small>{{ field.help_text }}</small>
-                                            </div>
-                                        {% endif %}
-                                    </div>
-                                {% endfor %}
-
-                                {% if not profile_form.fields %}
-                                    <div class="text-center py-4">
-                                        <i class="bi bi-gear text-muted" style="font-size: 3rem;"></i>
-                                        <h6 class="text-muted mt-2">Profile customization options</h6>
-                                        <p class="text-muted small mb-0">Additional profile settings will be available in future updates.</p>
-                                    </div>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-12 mb-4">
-                        <div class="card border-0 shadow-sm">
-                            <div class="card-header bg-white border-0">
-                                <h5 class="fw-bold mb-0">
-                                    <i class="bi bi-shield-check me-2"></i>Security Information
-                                </h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="row g-3">
-                                    <div class="col-md-6">
-                                        <div class="bg-light rounded p-3">
-                                            <div class="d-flex align-items-center justify-content-between">
-                                                <div>
-                                                    <h6 class="mb-1">Security Score</h6>
-                                                    <p class="text-muted small mb-0">Overall account security</p>
-                                                </div>
-                                                <span class="badge bg-{% if user.userprofile.security_score >= 80 %}success{% elif user.userprofile.security_score >= 60 %}warning{% else %}danger{% endif %} fs-6">
-                                                    {{ user.userprofile.security_score|default:0 }}%
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="bg-light rounded p-3">
-                                            <div class="d-flex align-items-center justify-content-between">
-                                                <div>
-                                                    <h6 class="mb-1">Last Audit</h6>
-                                                    <p class="text-muted small mb-0">Security check performed</p>
-                                                </div>
-                                                <span class="text-muted small">
-                                                    {% if user.userprofile.last_audit_date %}
-                                                        {{ user.userprofile.last_audit_date|timesince }} ago
-                                                    {% else %}
-                                                        Never
-                                                    {% endif %}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="mt-3">
-                                    <a href="{% url 'security_audit' %}" class="btn btn-outline-warning btn-sm">
-                                        <i class="bi bi-shield-exclamation me-1"></i>Run Security Audit
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-12">
-                        <div class="card border-0 shadow-sm">
-                            <div class="card-body">
-                                <div class="d-flex gap-2 justify-content-end">
-                                    <a href="{% url 'profile' %}" class="btn btn-outline-secondary">
-                                        <i class="bi bi-x-lg me-1"></i>Cancel
-                                    </a>
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="bi bi-check-lg me-1"></i>Save Changes
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </form>
-
-            <div class="card border-danger mt-4">
-                <div class="card-header bg-danger bg-opacity-10 border-danger">
-                    <h6 class="text-danger fw-bold mb-0">
-                        <i class="bi bi-exclamation-triangle me-2"></i>Danger Zone
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <p class="text-muted mb-3">These actions are irreversible. Please be careful.</p>
-                    <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
-                        <i class="bi bi-key me-1"></i>Change Password
-                    </button>
-                    <button type="button" class="btn btn-outline-danger ms-2" disabled>
-                        <i class="bi bi-trash me-1"></i>Delete Account (Coming Soon)
-                    </button>
-                </div>
-            </div>
-
         </div>
-    </div>
-</div>
 
-<div class="modal fade" id="changePasswordModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
 
-            <div class="modal-header">
-                <h5 class="modal-title">
-                    <i class="bi bi-key me-2"></i>Change Password
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body p-4">
+                            <div class="row g-4">
+                                <div class="col-12">
+                                    <label for="{{ user_form.username.id_for_label }}" class="form-label">
+                                        <i class="bi bi-person me-1"></i>Username
+                                    </label>
+                                    {{ user_form.username }}
+                                    {% if user_form.username.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {% for error in user_form.username.errors %}
+                                                <div>{{ error }}</div>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    <div class="form-text">
+                                        <small>Your username is used for login and identification.</small>
+                                    </div>
+                                </div>
 
-                <div class="alert alert-info">
-                    <i class="bi bi-info-circle me-2"></i>
-                    Password change functionality will be available in the next update.
-                    For now, contact support if you need to reset your password.
+                                <div class="col-12">
+                                    <label for="{{ user_form.email.id_for_label }}" class="form-label">
+                                        <i class="bi bi-envelope me-1"></i>Email Address
+                                    </label>
+                                    {{ user_form.email }}
+                                    {% if user_form.email.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {% for error in user_form.email.errors %}
+                                                <div>{{ error }}</div>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    <div class="form-text">
+                                        <small>Used for important security notifications.</small>
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <label for="{{ user_form.first_name.id_for_label }}" class="form-label">
+                                        <i class="bi bi-card-text me-1"></i>First Name
+                                    </label>
+                                    {{ user_form.first_name }}
+                                    {% if user_form.first_name.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {% for error in user_form.first_name.errors %}
+                                                <div>{{ error }}</div>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="col-12">
+                                    <label for="{{ user_form.last_name.id_for_label }}" class="form-label">
+                                        <i class="bi bi-card-text me-1"></i>Last Name
+                                    </label>
+                                    {{ user_form.last_name }}
+                                    {% if user_form.last_name.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {% for error in user_form.last_name.errors %}
+                                                <div>{{ error }}</div>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <hr class="my-4">
+
+                            <div class="d-flex gap-2 justify-content-end">
+                                <a href="{% url 'profile' %}" class="btn btn-outline-secondary">
+                                    <i class="bi bi-x-lg me-1"></i>Cancel
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-check-lg me-1"></i>Save Changes
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-
-                <form id="changePasswordForm">
-                    <div class="mb-3">
-                        <label class="form-label">Current Password</label>
-                        <input type="password" class="form-control" disabled>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">New Password</label>
-                        <input type="password" class="form-control" disabled>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Confirm New Password</label>
-                        <input type="password" class="form-control" disabled>
-                    </div>
-                </form>
-
             </div>
-
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" disabled>Update Password</button>
-            </div>
-
-        </div>
+        </form>
     </div>
-</div>
 {% endblock %}
