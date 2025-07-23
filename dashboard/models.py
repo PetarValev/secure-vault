@@ -24,7 +24,7 @@ class SecurityAudit(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f"Audit for {self.user.username} - {self.created_at.strftime('%Y-%m-%d')}"
+        return f"Audit for {self.user.profile.username or self.user.email} - {self.created_at.strftime('%Y-%m-%d')}"
 
     def perform_audit(self):
         passwords = PasswordEntry.objects.filter(user=self.user)
@@ -50,9 +50,9 @@ class SecurityAudit(models.Model):
 
         self.save()
 
-        self.user.userprofile.security_score = int(self.security_score)
-        self.user.userprofile.last_audit_date = self.created_at
-        self.user.userprofile.save()
+        self.user.profile.security_score = int(self.security_score)
+        self.user.profile.last_audit_date = self.created_at
+        self.user.profile.save()
 
 
 class AuditLog(models.Model):
@@ -67,4 +67,4 @@ class AuditLog(models.Model):
         ordering = ['-timestamp']
 
     def __str__(self):
-        return f"{self.user.username} - {self.get_action_display()} - {self.timestamp.strftime('%Y-%m-%d %H:%M')}"
+        return f"{self.user.profil.username or self.user.email} - {self.get_action_display()} - {self.timestamp.strftime('%Y-%m-%d %H:%M')}"

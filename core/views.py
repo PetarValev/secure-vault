@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.views.generic import TemplateView
-from accounts.models import UserProfile
+from accounts.models import Profile
 
 
 def home_view(request):
@@ -8,7 +8,7 @@ def home_view(request):
         return redirect('dashboard')
 
     context = {
-        'total_users': UserProfile.objects.count(),
+        'total_users': Profile.objects.count(),
         'app_name': 'SecureVault',
         'features': [
             {

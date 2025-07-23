@@ -32,7 +32,7 @@
                 {% if user.is_authenticated %}
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                            <i class="bi bi-person-circle me-1"></i>{{ user.username }}
+                            <i class="bi bi-person-circle me-1"></i>{{ user.profile.username|default:user.email }}
                             {% if user_security_score %}
                                 <span class="badge bg-{% if user_security_score >= 80 %}success{% elif user_security_score >= 60 %}warning{% else %}danger{% endif %} ms-1">
                                         {{ user_security_score }}%

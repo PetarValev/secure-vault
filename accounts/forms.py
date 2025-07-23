@@ -1,9 +1,10 @@
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from accounts.models import UserProfile
+from accounts.models import Profile
 
 UserModel = get_user_model()
+
 
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(
@@ -16,13 +17,7 @@ class CustomUserCreationForm(UserCreationForm):
 
     class Meta:
         model = UserModel
-        fields = ('username', 'email', 'password1', 'password2')
-        widgets = {
-            'username': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Choose a username'
-            }),
-        }
+        fields = ('email', 'password1', 'password2')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -40,16 +35,20 @@ class CustomUserCreationForm(UserCreationForm):
         user.email = self.cleaned_data['email']
         if commit:
             user.save()
+            # Profile се създава автоматично от signal-а
         return user
 
 
 class CustomAuthenticationForm(AuthenticationForm):
+    username = forms.EmailField(
+        widget=forms.EmailInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Email'
+        })
+    )
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['username'].widget.attrs.update({
-            'class': 'form-control',
-            'placeholder': 'Username'
-        })
         self.fields['password'].widget.attrs.update({
             'class': 'form-control',
             'placeholder': 'Password'
@@ -57,37 +56,27 @@ class CustomAuthenticationForm(AuthenticationForm):
 
 
 class UserUpdateForm(forms.ModelForm):
-    email = forms.EmailField(
-        widget=forms.EmailInput(attrs={'class': 'form-control'})
-    )
-
     class Meta:
         model = UserModel
-        fields = ['username', 'email', 'first_name', 'last_name']
+        fields = ['email']
         widgets = {
-            'username': forms.TextInput(attrs={'class': 'form-control'}),
-            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
-            'last_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
         }
 
 
 class ProfileUpdateForm(forms.ModelForm):
     class Meta:
-        model = UserProfile
-        fields = ['avatar'] if 'avatar' in [f.name for f in UserProfile._meta.fields] else []
-        widgets = {
-            'avatar': forms.FileInput(attrs={'class': 'form-control-file'}),
-        }
+        model = Profile
+        fields = ['username'] if hasattr(Profile, 'username') else []
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if not self.fields:
-            self.fields['bio'] = forms.CharField(
-                required=False,
-                widget=forms.Textarea(attrs={
-                    'class': 'form-control',
-                    'rows': 3,
-                    'placeholder': 'Tell us about yourself...'
-                }),
-                help_text='Optional bio (not saved yet - placeholder for future)'
-            )
+
+        # Само ако Profile има username поле
+        if 'username' in self.fields:
+            self.fields['username'].widget.attrs.update({
+                'class': 'form-control',
+                'placeholder': 'Choose a username'
+            })
+            self.fields['username'].help_text = 'Optional username for your profile'
+            self.fields['username'].required = False

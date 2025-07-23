@@ -47,7 +47,7 @@ def dashboard_view(request):
         'last_audit_date': last_audit_date,
         'recent_activity': recent_activity,
         'recommendations': recommendations,
-        'user_profile': user.userprofile,
+        'user_profile': user.profile,
     }
 
 
@@ -167,9 +167,9 @@ def run_security_audit(request):
             user_agent=get_user_agent(request)
         )
 
-        user.userprofile.security_score = audit.security_score
-        user.userprofile.last_audit_date = audit.created_at
-        user.userprofile.save()
+        user.profile.security_score = audit.security_score
+        user.profile.last_audit_date = audit.created_at
+        user.profile.save()
 
         return JsonResponse({
             'success': True,

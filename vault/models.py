@@ -40,7 +40,7 @@ class PasswordEntry(models.Model):
         ordering = ['-updated_at']
 
     def __str__(self):
-        return f"{self.user.username} - {self.title}"
+        return f"{self.user.profile.username or self.user.email} - {self.title}"
 
     def check_password_strength(self):
         score = calculate_password_strength(self.password)

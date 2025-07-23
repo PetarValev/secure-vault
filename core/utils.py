@@ -10,7 +10,7 @@ def get_user_stats():
     return {
         'total_users': UserModel.objects.filter(is_active=True).count(),
         'total_profiles': UserModel.objects.filter(
-            userprofile__isnull=False
+            profile__isnull=False
         ).count(),
     }
 
