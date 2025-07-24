@@ -5,6 +5,8 @@ from django.utils import timezone
 from dashboard.choices import ActionChoices
 from vault.models import PasswordEntry
 
+from collections import Counter
+
 UserModel = get_user_model()
 
 
@@ -33,8 +35,8 @@ class SecurityAudit(models.Model):
         self.weak_passwords = passwords.filter(is_weak=True).count()
 
         password_values = passwords.values_list('password', flat=True)
-        unique_passwords = set(password_values)
-        self.duplicate_passwords = len(password_values) - len(unique_passwords)
+        password_counts = Counter(password_values)
+        self.duplicate_passwords = sum(count for count in password_counts.values() if count > 1)
 
         six_months_ago = timezone.now() - timezone.timedelta(days=180)
         self.old_passwords = passwords.filter(updated_at__lt=six_months_ago).count()
