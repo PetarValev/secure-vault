@@ -35,7 +35,6 @@ class CustomUserCreationForm(UserCreationForm):
         user.email = self.cleaned_data['email']
         if commit:
             user.save()
-            # Profile се създава автоматично от signal-а
         return user
 
 
@@ -72,7 +71,6 @@ class ProfileUpdateForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Само ако Profile има username поле
         if 'username' in self.fields:
             self.fields['username'].widget.attrs.update({
                 'class': 'form-control',

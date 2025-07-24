@@ -96,7 +96,7 @@ class AuditHistoryView(LoginRequiredMixin, TemplateView):
 
 class RecentActivityView(LoginRequiredMixin, TemplateView):
     template_name = 'dashboard/recent-activity.html'
-    paginate_by = 10
+    paginate_by = 5
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

@@ -26,7 +26,7 @@ class CustomRegisterView(CreateView):
     def form_valid(self, form):
         response = super().form_valid(form)
         login(self.request, self.object)
-        # Use email instead of username for display
+
         messages.success(self.request, f'Welcome {self.object.email}! Your account has been created.')
         return response
 
@@ -52,7 +52,7 @@ class CustomLoginView(LoginView):
             ip_address=get_client_ip(self.request),
             user_agent=get_user_agent(self.request)
         )
-        # Use email instead of username for display
+
         messages.success(self.request, f'Welcome back, {form.get_user().email}!')
         return super().form_valid(form)
 
@@ -80,7 +80,7 @@ class ProfileView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['user_form'] = UserUpdateForm(instance=self.request.user)
-        # Changed from userprofile to profile (related_name in your model)
+
         context['profile_form'] = ProfileUpdateForm(instance=self.request.user.profile)
         context['user_profile'] = self.request.user.profile
         context['weak_passwords_count'] = self.request.user.profile.weak_passwords_count
@@ -94,7 +94,7 @@ def profile_edit(request):
         profile_form = ProfileUpdateForm(
             request.POST,
             request.FILES,
-            instance=request.user.profile  # Changed from userprofile to profile
+            instance=request.user.profile
         )
 
         if user_form.is_valid() and profile_form.is_valid():
@@ -104,7 +104,7 @@ def profile_edit(request):
             return redirect('profile')
     else:
         user_form = UserUpdateForm(instance=request.user)
-        profile_form = ProfileUpdateForm(instance=request.user.profile)  # Changed from userprofile to profile
+        profile_form = ProfileUpdateForm(instance=request.user.profile)
 
     context = {
         'user_form': user_form,
@@ -130,7 +130,6 @@ class DeleteAccountView(LoginRequiredMixin, View):
                     'error': 'Invalid password'
                 })
 
-            # Use email instead of username for display
             user_email = request.user.email
             request.user.delete()
             logout(request)
@@ -169,7 +168,7 @@ class CustomPasswordChangeView(LoginRequiredMixin, View):
                 AuditLog.objects.create(
                     user=request.user,
                     action='update',
-                    details=f'Password changed for user {request.user.email}',  # Changed from username to email
+                    details=f'Password changed for user {request.user.email}',
                     ip_address=request.META.get('REMOTE_ADDR')
                 )
 

@@ -211,5 +211,10 @@
 {% endblock %}
 
 {% block extra_js %}
+    <!-- Pass Django data to JavaScript -->
+    <script>
+        window.auditUrl = "{% url 'run-security-audit' %}";
+        window.csrfToken = "{{ csrf_token }}";
+    </script>
     <script src="{% static 'js/security-audit.js' %}"></script>
 {% endblock %}
