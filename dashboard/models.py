@@ -69,4 +69,4 @@ class AuditLog(models.Model):
         ordering = ['-timestamp']
 
     def __str__(self):
-        return f"{self.user.profil.username or self.user.email} - {self.get_action_display()} - {self.timestamp.strftime('%Y-%m-%d %H:%M')}"
+        return f"{self.user.profile.username or self.user.email} - {self.get_action_display()} - {self.timestamp.strftime('%Y-%m-%d %H:%M')}"
