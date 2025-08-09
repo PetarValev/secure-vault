@@ -3,20 +3,17 @@ function showToast(type, title, message) {
     const toastHeader = toast.querySelector('.toast-header');
     const toastTitle = document.getElementById('toastTitle');
     const toastMessage = document.getElementById('toastMessage');
-
     toastHeader.className = `toast-header text-white ${type === 'success' ? 'bg-success' : 'bg-danger'}`;
     const icon = toastHeader.querySelector('i');
     icon.className = type === 'success' ? 'bi bi-check-circle-fill me-2' : 'bi bi-exclamation-triangle-fill me-2';
-
     toastTitle.textContent = title;
     toastMessage.textContent = message;
-
     const bsToast = new bootstrap.Toast(toast);
     bsToast.show();
 }
 
-
 document.getElementById('changePasswordBtn').addEventListener('click', function () {
+    const button = this; // Запазваме референцията към бутона
     const oldPassword = document.getElementById('oldPassword').value;
     const newPassword1 = document.getElementById('newPassword1').value;
     const newPassword2 = document.getElementById('newPassword2').value;
@@ -42,14 +39,14 @@ document.getElementById('changePasswordBtn').addEventListener('click', function 
         return;
     }
 
-    this.disabled = true;
-    this.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Updating...';
+    button.disabled = true;
+    button.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Updating...';
 
-    fetch('{% url "change-password" %}', {
+    fetch(window.APP_URLS.changePassword, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': '{{ csrf_token }}'
+            'X-CSRFToken': getCookie('csrftoken')
         },
         body: JSON.stringify({
             old_password: oldPassword,
@@ -57,29 +54,29 @@ document.getElementById('changePasswordBtn').addEventListener('click', function 
             new_password2: newPassword2
         })
     })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                bootstrap.Modal.getInstance(document.getElementById('changePasswordModal')).hide();
-                document.getElementById('changePasswordForm').reset();
-                showToast('success', 'Password Changed', 'Your password has been updated successfully!');
-            } else {
-                errorDiv.textContent = data.error || 'Failed to change password';
-                errorDiv.classList.remove('d-none');
-            }
-            this.disabled = false;
-            this.innerHTML = '<i class="bi bi-key me-1"></i>Update Password';
-        })
-        .catch(error => {
-            errorDiv.textContent = 'Something went wrong. Please try again.';
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            bootstrap.Modal.getInstance(document.getElementById('changePasswordModal')).hide();
+            document.getElementById('changePasswordForm').reset();
+            showToast('success', 'Password Changed', 'Your password has been updated successfully!');
+        } else {
+            errorDiv.textContent = data.error || 'Failed to change password';
             errorDiv.classList.remove('d-none');
-            this.disabled = false;
-            this.innerHTML = '<i class="bi bi-key me-1"></i>Update Password';
-        });
+        }
+        button.disabled = false;
+        button.innerHTML = '<i class="bi bi-key me-1"></i>Update Password';
+    })
+    .catch(error => {
+        errorDiv.textContent = 'Something went wrong. Please try again.';
+        errorDiv.classList.remove('d-none');
+        button.disabled = false;
+        button.innerHTML = '<i class="bi bi-key me-1"></i>Update Password';
+    });
 });
 
-
 document.getElementById('confirmDeleteBtn').addEventListener('click', function () {
+    const button = this; // Запазваме референцията към бутона
     const password = document.getElementById('deletePassword').value;
     const errorDiv = document.getElementById('passwordError');
 
@@ -89,38 +86,38 @@ document.getElementById('confirmDeleteBtn').addEventListener('click', function (
         return;
     }
 
-    this.disabled = true;
-    this.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Deleting...';
+    button.disabled = true;
+    button.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Deleting...';
 
-    fetch('{% url "profile-delete" %}', {
+    fetch(window.APP_URLS.profileDelete, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': '{{ csrf_token }}'
+            'X-CSRFToken': getCookie('csrftoken')
         },
         body: JSON.stringify({
             password: password
         })
     })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                bootstrap.Modal.getInstance(document.getElementById('deleteAccountModal')).hide();
-                showToast('success', 'Account Deleted', data.message);
-                setTimeout(() => {
-                    window.location.href = '/';
-                }, 2000);
-            } else {
-                errorDiv.textContent = data.error;
-                errorDiv.classList.remove('d-none');
-                this.disabled = false;
-                this.innerHTML = '<i class="bi bi-trash me-1"></i>Delete My Account';
-            }
-        })
-        .catch(error => {
-            errorDiv.textContent = 'Something went wrong. Please try again.';
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            bootstrap.Modal.getInstance(document.getElementById('deleteAccountModal')).hide();
+            showToast('success', 'Account Deleted', data.message);
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 2000);
+        } else {
+            errorDiv.textContent = data.error;
             errorDiv.classList.remove('d-none');
-            this.disabled = false;
-            this.innerHTML = '<i class="bi bi-trash me-1"></i>Delete My Account';
-        });
+            button.disabled = false;
+            button.innerHTML = '<i class="bi bi-trash me-1"></i>Delete My Account';
+        }
+    })
+    .catch(error => {
+        errorDiv.textContent = 'Something went wrong. Please try again.';
+        errorDiv.classList.remove('d-none');
+        button.disabled = false;
+        button.innerHTML = '<i class="bi bi-trash me-1"></i>Delete My Account';
+    });
 });

@@ -26,6 +26,13 @@ class CustomRegisterView(CreateView):
     def form_valid(self, form):
         response = super().form_valid(form)
         login(self.request, self.object)
+        AuditLog.objects.create(
+            user=self.request.user,
+            action=ActionChoices.LOGIN,
+            details="User logged in",
+            ip_address=get_client_ip(self.request),
+            user_agent=get_user_agent(self.request)
+        )
 
         messages.success(self.request, f'Welcome {self.object.email}! Your account has been created.')
         return response
