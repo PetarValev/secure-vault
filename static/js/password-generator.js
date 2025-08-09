@@ -1,7 +1,5 @@
 document.addEventListener('DOMContentLoaded', function () {
     let passwordHistory = [];
-
-
     const lengthSlider = document.getElementById('length');
     const lengthValue = document.getElementById('lengthValue');
     const generateBtn = document.getElementById('generateBtn');
@@ -11,7 +9,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const strengthBar = document.getElementById('strengthBar');
     const historyContainer = document.getElementById('passwordHistory');
     const clearHistoryBtn = document.getElementById('clearHistoryBtn');
-
 
     lengthSlider.addEventListener('input', function () {
         lengthValue.textContent = this.value;
@@ -31,7 +28,6 @@ document.addEventListener('DOMContentLoaded', function () {
             document.getElementById('include_lowercase').checked = lower;
             document.getElementById('include_numbers').checked = numbers;
             document.getElementById('include_symbols').checked = symbols;
-
         });
     });
 
@@ -49,7 +45,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (includeSymbols) chars += '!@#$%^&*()_+-=[]{}|;:,.<>?';
 
         if (!chars) {
-            alert('Please select at least one character type!');
+            showToast('error', 'Please select at least one character type!');
             return;
         }
 
@@ -65,7 +61,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function updatePasswordStrength(password) {
         let score = 0;
-
         if (password.length >= 8) score += 25;
         if (password.length >= 12) score += 25;
         if (/[a-z]/.test(password)) score += 15;
@@ -97,11 +92,9 @@ document.addEventListener('DOMContentLoaded', function () {
     function addToHistory(password) {
         const timestamp = new Date().toLocaleTimeString();
         passwordHistory.unshift({password, timestamp});
-
         if (passwordHistory.length > 5) {
             passwordHistory = passwordHistory.slice(0, 5);
         }
-
         updateHistoryDisplay();
         clearHistoryBtn.disabled = false;
     }
@@ -137,16 +130,10 @@ document.addEventListener('DOMContentLoaded', function () {
             btn.addEventListener('click', function () {
                 const password = this.dataset.password;
                 navigator.clipboard.writeText(password).then(() => {
-                    showToast('Password copied to clipboard!');
+                    showToast('success', 'Password copied to clipboard!');
                 });
             });
         });
-    }
-
-    function showToast(message) {
-        document.getElementById('toastMessage').textContent = message;
-        const toast = new bootstrap.Toast(document.getElementById('copyToast'));
-        toast.show();
     }
 
     generateBtn.addEventListener('click', generatePassword);
@@ -154,7 +141,7 @@ document.addEventListener('DOMContentLoaded', function () {
     copyGenerated.addEventListener('click', function () {
         if (generatedPassword.value) {
             navigator.clipboard.writeText(generatedPassword.value).then(() => {
-                showToast('Password copied to clipboard!');
+                showToast('success', 'Password copied to clipboard!');
             });
         }
     });

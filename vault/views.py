@@ -62,7 +62,6 @@ class PasswordCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.user = self.request.user
-        response = super().form_valid(form)
 
         AuditLog.objects.create(
             user=self.request.user,
@@ -73,7 +72,8 @@ class PasswordCreateView(LoginRequiredMixin, CreateView):
         )
 
         messages.success(self.request, f'Password for {form.instance.title} has been saved securely!')
-        return response
+
+        return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -91,8 +91,6 @@ class PasswordUpdateView(LoginRequiredMixin, UpdateView):
         return PasswordEntry.objects.filter(user=self.request.user)
 
     def form_valid(self, form):
-        response = super().form_valid(form)
-
         AuditLog.objects.create(
             user=self.request.user,
             action=ActionChoices.UPDATE,
@@ -102,7 +100,8 @@ class PasswordUpdateView(LoginRequiredMixin, UpdateView):
         )
 
         messages.success(self.request, f'Password for {form.instance.title} has been updated!')
-        return response
+
+        return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -136,11 +135,10 @@ class PasswordDeleteView(LoginRequiredMixin, DeleteView):
             print(f"Error creating log: {e}")
 
         messages.success(self.request, f'Password for {title} has been deleted.')
+
         return super().form_valid(form)
 
 
 @method_decorator(login_required, name='dispatch')
 class PasswordGeneratorView(LoginRequiredMixin, TemplateView):
     template_name = 'vault/password-generator.html'
-
-

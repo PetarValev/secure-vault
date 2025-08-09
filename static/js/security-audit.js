@@ -23,15 +23,15 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(data => {
                 if (data.success) {
                     displayResults(data.audit, data.password_analysis);
-                    showToast(data.message);
+                    showToast('success', data.message);
                     updateAuditHistory(data.audit);
                 } else {
-                    showError(data.error || 'Audit failed');
+                    showToast('error', data.error || 'Audit failed');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                showError('An error occurred while running the audit');
+                showToast('error', 'An error occurred while running the audit');
             });
     }
 
@@ -162,23 +162,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 historyTable.removeChild(historyTable.lastChild);
             }
         }
-    }
-
-    function showError(message) {
-        loadingState.classList.add('d-none');
-        emptyState.classList.remove('d-none');
-
-        document.getElementById('auditToastMessage').textContent = message;
-        document.querySelector('#auditToast .bi').className = 'bi bi-exclamation-triangle text-danger me-2';
-        const toast = new bootstrap.Toast(document.getElementById('auditToast'));
-        toast.show();
-    }
-
-    function showToast(message) {
-        document.getElementById('auditToastMessage').textContent = message;
-        document.querySelector('#auditToast .bi').className = 'bi bi-check-circle text-success me-2';
-        const toast = new bootstrap.Toast(document.getElementById('auditToast'));
-        toast.show();
     }
 
     if (runAuditBtn) {

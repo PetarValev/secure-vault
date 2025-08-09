@@ -1,19 +1,20 @@
-function showToast(type, title, message) {
-    const toast = document.getElementById('successToast');
-    const toastHeader = toast.querySelector('.toast-header');
-    const toastTitle = document.getElementById('toastTitle');
-    const toastMessage = document.getElementById('toastMessage');
-    toastHeader.className = `toast-header text-white ${type === 'success' ? 'bg-success' : 'bg-danger'}`;
-    const icon = toastHeader.querySelector('i');
-    icon.className = type === 'success' ? 'bi bi-check-circle-fill me-2' : 'bi bi-exclamation-triangle-fill me-2';
-    toastTitle.textContent = title;
-    toastMessage.textContent = message;
-    const bsToast = new bootstrap.Toast(toast);
-    bsToast.show();
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
 }
 
 document.getElementById('changePasswordBtn').addEventListener('click', function () {
-    const button = this; // Запазваме референцията към бутона
+    const button = this;
     const oldPassword = document.getElementById('oldPassword').value;
     const newPassword1 = document.getElementById('newPassword1').value;
     const newPassword2 = document.getElementById('newPassword2').value;
@@ -59,7 +60,7 @@ document.getElementById('changePasswordBtn').addEventListener('click', function 
         if (data.success) {
             bootstrap.Modal.getInstance(document.getElementById('changePasswordModal')).hide();
             document.getElementById('changePasswordForm').reset();
-            showToast('success', 'Password Changed', 'Your password has been updated successfully!');
+            showToast('success', 'Your password has been updated successfully!');
         } else {
             errorDiv.textContent = data.error || 'Failed to change password';
             errorDiv.classList.remove('d-none');
@@ -76,7 +77,7 @@ document.getElementById('changePasswordBtn').addEventListener('click', function 
 });
 
 document.getElementById('confirmDeleteBtn').addEventListener('click', function () {
-    const button = this; // Запазваме референцията към бутона
+    const button = this;
     const password = document.getElementById('deletePassword').value;
     const errorDiv = document.getElementById('passwordError');
 
@@ -103,7 +104,8 @@ document.getElementById('confirmDeleteBtn').addEventListener('click', function (
     .then(data => {
         if (data.success) {
             bootstrap.Modal.getInstance(document.getElementById('deleteAccountModal')).hide();
-            showToast('success', 'Account Deleted', data.message);
+
+            showToast('success', data.message);
             setTimeout(() => {
                 window.location.href = '/';
             }, 2000);

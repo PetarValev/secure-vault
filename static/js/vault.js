@@ -16,18 +16,13 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-
     document.querySelectorAll('.copy-password').forEach(button => {
         button.addEventListener('click', function () {
             const password = this.getAttribute('data-password');
             const title = this.getAttribute('data-title');
 
             navigator.clipboard.writeText(password).then(function () {
-                const toastMessage = document.getElementById('toastMessage');
-                toastMessage.textContent = `Password for ${title} copied to clipboard!`;
-
-                const toast = new bootstrap.Toast(document.getElementById('copyToast'));
-                toast.show();
+                showToast('success', `Password for ${title} copied to clipboard!`);
             });
         });
     });

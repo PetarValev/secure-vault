@@ -21,11 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const label = this.getAttribute('data-label');
 
             navigator.clipboard.writeText(textToCopy).then(function () {
-                const toastMessage = document.getElementById('toastMessage');
-                toastMessage.textContent = `${label} copied to clipboard!`;
-
-                const toast = new bootstrap.Toast(document.getElementById('copyToast'));
-                toast.show();
+                showToast('success', `${label} copied to clipboard!`);
             });
         });
     });
