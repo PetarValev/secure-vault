@@ -7,8 +7,7 @@ class ClearAdminMessagesMiddleware:
 
     def __call__(self, request):
         if request.path.startswith('/admin/') and request.user.is_authenticated:
-            storage = messages.get_messages(request)
-            storage.used = True
+            list(messages.get_messages(request))
 
         response = self.get_response(request)
         return response
