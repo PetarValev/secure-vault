@@ -1,14 +1,17 @@
 # 🛡️ Secure Vault
 
-A secure password management application built with Django. Store and generate passwords safely with a clean, modern interface.
+## What is this?
 
-## ✨ Features
+In today's digital world, the average person has 80+ online accounts but uses only 5-7 different passwords. This creates a massive security risk - if one account gets hacked, all your accounts are compromised.
+
+Secure Vault solves this problem by providing a secure place to store unique passwords for every account, plus tools to generate strong passwords and monitor your overall security health.
+
+## Features
 
 - **🔐 Password Vault** - Secure storage for all your passwords with encryption
 - **🎲 Password Generator** - Create strong, unique passwords instantly  
 - **📊 Activity Logs** - Track all vault activities and access history
 - **🔍 Security Audits** - Regular security checks and vulnerability assessments
-- **🛡️ Security First** - We can't see your passwords, even if we wanted to
 - **🎨 Modern UI** - Clean, responsive interface built with Bootstrap
 
 ## Setup Instructions
