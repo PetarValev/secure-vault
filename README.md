@@ -14,7 +14,12 @@ Secure Vault solves this problem by providing a secure place to store unique pas
 - **🔍 Security Audits** - Regular security checks and vulnerability assessments
 - **🎨 Modern UI** - Clean, responsive interface built with Bootstrap
 
-## Setup Instructions
+## Live Demo
+**Try it now:** [https://secure-vault-v489.onrender.com](https://secure-vault-v489.onrender.com)
+
+## Local Development
+
+Want to run it locally? Here's how:
 
 1. **Clone the repository**
    ```bash
@@ -75,3 +80,12 @@ Secure Vault solves this problem by providing a secure place to store unique pas
 9. **Access the application**
    - Main app: `http://127.0.0.1:8000`
    - Admin panel: `http://127.0.0.1:8000/admin`
+
+## Tech Stack
+
+- Django 5.2.4
+- Python 3.x
+- PostgreSQL/SQLite
+- Bootstrap 5
+- JavaScript
+- Deployed on Render
