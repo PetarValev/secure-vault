@@ -9,7 +9,10 @@ SECRET_KEY = config('SECRET_KEY',
 
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
+CSRF_TRUSTED_ORIGINS = [
+    "https://*.onrender.com",
+]
 
 PROJECT_APPS = [
     'accounts',
