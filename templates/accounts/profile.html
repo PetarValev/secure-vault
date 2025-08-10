@@ -72,10 +72,14 @@
                             <div class="col-sm-6">
                                 <label class="form-label text-muted small">User Role</label>
                                 <p class="mb-0">
-                                    {% if user.groups.exists %}
-                                        {{ user.groups.first.name }}
+                                    {% if user.is_superuser %}
+                                        <span class="badge bg-danger">Administrator</span>
+                                    {% elif user.is_staff %}
+                                        <span class="badge bg-warning">Staff</span>
+                                    {% elif user.groups.exists %}
+                                        <span class="badge bg-info">{{ user.groups.first.name }}</span>
                                     {% else %}
-                                        Regular User
+                                        <span class="badge bg-secondary">Regular User</span>
                                     {% endif %}
                                 </p>
                             </div>

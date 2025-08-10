@@ -60,7 +60,6 @@ class CustomLoginView(LoginView):
             user_agent=get_user_agent(self.request)
         )
 
-        messages.success(self.request, f'Welcome back, {form.get_user().email}!')
         return super().form_valid(form)
 
 
@@ -76,7 +75,7 @@ class CustomLogoutView(LogoutView):
                 ip_address=get_client_ip(request),
                 user_agent=get_user_agent(request)
             )
-        messages.info(request, 'You have been logged out successfully.')
+
         return super().dispatch(request, *args, **kwargs)
 
 
